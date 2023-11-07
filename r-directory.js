@@ -1,4 +1,4 @@
-class Directory extends HTMLElement {
+class RPCDirectory extends HTMLElement {
   constructor() {
     super();
     this.addresses = new Map();
@@ -10,7 +10,7 @@ class Directory extends HTMLElement {
 
   // Method to load addresses from the light DOM
   loadEntries() {
-    const entryElements = this.querySelectorAll("address");
+    const entryElements = this.querySelectorAll("r-address");
     entryElements.forEach((address) => {
       const name = address.getAttribute("name");
       const value = address.textContent.trim();
@@ -31,4 +31,4 @@ class Directory extends HTMLElement {
   }
 }
 
-customElements.define("directory", Directory);
+customElements.define("r-directory", RPCDirectory);

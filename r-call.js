@@ -7,15 +7,14 @@ class RPCCall extends HTMLElement {
   // Collects data from the light DOM and executes the RPC call
   async connectedCallback() {
     // Extract the attributes and elements needed for the RPC call
-    const trim = (e) => e?.textContent.trim();
-    const getOne = (s) => trim(this.querySelector(s));
-    const getAll = (s) => Array.from(this.querySelectorAll(s)).map(trim);
+    const parseText = (e) => this.lookup(e?.textContent.trim());
+    const getOne = (s) => parseText(this.querySelector(s));
+    const getAll = (s) => Array.from(this.querySelectorAll(s)).map(parseText);
 
-    const to = getOne("to");
-    const methodSignature = getOne("method-signature");
-    const args = getAll("arg");
+    const to = getOne("r-to");
+    const methodSignature = getOne("r-method-signature");
+    const args = getAll("r-arg");
 
-    // Execute the RPC call using fetch or another method
     const response = await this.callContractMethod(to, methodSignature, args);
 
     if (response) {
@@ -29,6 +28,20 @@ class RPCCall extends HTMLElement {
       // Handle error or no response
       this.shadowRoot.innerHTML = `<pre>Error in RPC call</pre>`;
     }
+  }
+
+  // lookup value in the directory
+  lookup(value) {
+    const directory = document.getElementsByTagName("r-directory")?.[0];
+
+    return directory !== undefined && value?.includes?.("$")
+      ? directory.getAddress(value.replace("$", ""))
+      : value;
+  }
+
+  // fetch the rpc endpoint
+  endpoint() {
+    return document.querySelector("r-url")?.textContent?.trim();
   }
 
   // Encode method call data for Ethereum transaction
@@ -57,7 +70,7 @@ class RPCCall extends HTMLElement {
       params: [{ to: contractAddress, data: data }, "latest"],
     };
 
-    const response = await fetch(this.ENDPOINT, {
+    const response = await fetch(this.endpoint(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -77,4 +90,4 @@ class RPCCall extends HTMLElement {
   }
 }
 
-customElements.define("rpc-call", RPCCall);
+customElements.define("r-call", RPCCall);
