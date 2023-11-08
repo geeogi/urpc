@@ -1,4 +1,4 @@
-class RPCDirectory extends HTMLElement {
+class URPCDirectory extends HTMLElement {
   constructor() {
     super();
     this.variables = new Map();
@@ -14,9 +14,7 @@ class RPCDirectory extends HTMLElement {
     entryElements.forEach((variable) => {
       const name = variable.getAttribute("name");
       const value = variable.textContent.trim();
-      if (name) {
-        this.variables.set(name, value);
-      }
+      this.variables.set(name, value);
     });
   }
 
@@ -24,11 +22,6 @@ class RPCDirectory extends HTMLElement {
   getVariable(name) {
     return this.variables.get(name) || null;
   }
-
-  // If dynamic updates of variables are needed
-  updateEntry(name, value) {
-    this.variables.set(name, value);
-  }
 }
 
-customElements.define("r-directory", RPCDirectory);
+customElements.define("urpc-directory", URPCDirectory);

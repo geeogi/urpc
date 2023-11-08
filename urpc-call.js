@@ -1,4 +1,6 @@
-class RPCCall extends HTMLElement {
+// first 8 characters of keccak_256 of e.g. balanceOf(address)
+// https://emn178.github.io/online-tools/keccak_256.html
+class URPCCall extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
@@ -7,41 +9,46 @@ class RPCCall extends HTMLElement {
   // Collects data from the light DOM and executes the RPC call
   async connectedCallback() {
     // Extract the attributes and elements needed for the RPC call
-    const parseText = (e) => this.lookup(e?.textContent.trim());
-    const getOne = (s) => parseText(this.querySelector(s));
-    const getAll = (s) => Array.from(this.querySelectorAll(s)).map(parseText);
-
-    const to = getOne("r-to");
-    const methodSignature = getOne("r-method-signature");
-    const args = getAll("r-arg");
-
-    const response = await this.callContractMethod(to, methodSignature, args);
+    const type = this.getAttribute("type") || "eth_call";
+    const to = this.lookup(this.getAttribute("to"));
+    const method = this.lookup(this.getAttribute("method"));
+    const args = this.getAttribute("args")?.split(",").map(this.lookup);
+    const response = await this.callRPC(type, to, method, args);
 
     if (response) {
       // Handle the successful RPC response
-      this.shadowRoot.innerHTML = `<pre>${JSON.stringify(
-        response,
-        null,
-        2
-      )}</pre>`;
+      const decimals = parseInt(this.lookup(this.getAttribute("decimals")));
+      this.shadowRoot.innerHTML = this.parseReturn(response.value, decimals);
     } else {
       // Handle error or no response
-      this.shadowRoot.innerHTML = `<pre>Error in RPC call</pre>`;
+      this.shadowRoot.innerHTML = "Error in RPC call";
     }
   }
 
-  // lookup value in the directory
-  lookup(value) {
-    const directory = document.getElementsByTagName("r-directory")?.[0];
+  // smart parse return value
+  parseReturn(value, decimals) {
+    if (decimals) {
+      return parseInt(value, 16) / 10 ** decimals;
+    } else {
+      return value;
+    }
+  }
 
-    return directory !== undefined && value?.includes?.("$")
+  // fetch the directory
+  directory() {}
+
+  // lookup value in directory
+  lookup(value) {
+    const directory = document.getElementsByTagName("urpc-directory")?.[0];
+
+    return value?.includes?.("$")
       ? directory.getVariable(value.replace("$", ""))
       : value;
   }
 
   // fetch the rpc endpoint
   endpoint() {
-    return document.querySelector("r-url")?.textContent?.trim();
+    return document.querySelector("urpc-url")?.textContent?.trim();
   }
 
   // Encode method call data for Ethereum transaction
@@ -60,13 +67,13 @@ class RPCCall extends HTMLElement {
       : arg.padStart(64, "0");
   }
 
-  async callContractMethod(contractAddress, methodSignature, args = []) {
+  async callRPC(type, contractAddress, methodSignature, args = []) {
     const data = this.encodeMethodCall(methodSignature, args);
 
     const payload = {
       jsonrpc: "2.0",
       id: 1,
-      method: "eth_call",
+      method: type,
       params: [{ to: contractAddress, data: data }, "latest"],
     };
 
@@ -86,8 +93,8 @@ class RPCCall extends HTMLElement {
 
     const value = json.result;
 
-    return { value, contractAddress, methodSignature, args };
+    return { type, contractAddress, methodSignature, args, value };
   }
 }
 
-customElements.define("r-call", RPCCall);
+customElements.define("urpc-call", URPCCall);

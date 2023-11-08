@@ -4,20 +4,38 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RPC Web Components Test</title>
-    <script type="module" src="r-directory.js"></script>
-    <script type="module" src="r-call.js"></script>
+    <script type="module" src="urpc-directory.js"></script>
+    <script type="module" src="urpc-call.js"></script>
   </head>
   <body>
-    <r-url>
+    <urpc-url>
       https://eth-mainnet.g.alchemy.com/v2/VjRG6l7jUiq9cJNzPDoLIw2lFz-pz_Ra
-    </r-url>
-    <r-directory>
+    </urpc-url>
+    <urpc-directory>
+      <!-- method signatures -->
+      <var name="balanceOf(address)">0x70a08231</var>
+      <var name="totalSupply()">0x18160ddd</var>
+      <var name="getEthBalance(address)">0x4d2301cc</var>
+      <var name="latestAnswer()">0x50d25bcd</var>
+      <var name="stEthPerToken()">0x035faf82</var>
+      <var name="getNodeOperatorsCount()">0xa70c70e4</var>
+      <var name="getBufferedEther()">0x47b714e0</var>
+      <var name="numPods()">0xa6a509be</var>
+
+      <!-- addresses -->
       <var name="stETH">0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84</var>
+      <var name="stETH.decimals">18</var>
       <var name="wstETH">0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0</var>
-    </r-directory>
+      <var name="wstETH.decimals">18</var>
+    </urpc-directory>
     <p>
       <span>balance of wstETH in stETH: </span>
-      <r-call type="eth_call" to="$wstETH" method="balanceOf($stETH)" />
+      <urpc-call
+        to="$wstETH"
+        method="$balanceOf(address)"
+        args="$stETH"
+        decimals="$stETH.decimals"
+      />
     </p>
   </body>
 </html>
