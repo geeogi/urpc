@@ -8,21 +8,16 @@
     <script type="module" src="r-call.js"></script>
   </head>
   <body>
-    <r-url
-      >https://eth-mainnet.g.alchemy.com/v2/VjRG6l7jUiq9cJNzPDoLIw2lFz-pz_Ra</r-url
-    >
+    <r-url>
+      https://eth-mainnet.g.alchemy.com/v2/VjRG6l7jUiq9cJNzPDoLIw2lFz-pz_Ra
+    </r-url>
     <r-directory>
-      <r-address name="stETH"
-        >0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84</r-address
-      >
-      <r-address name="wstETH"
-        >0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0</r-address
-      >
+      <var name="stETH">0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84</var>
+      <var name="wstETH">0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0</var>
     </r-directory>
-    <r-call method="eth_call">
-      <r-to>$wstETH</r-to>
-      <r-method-signature>0x70a08231</r-method-signature>
-      <r-arg>$stETH</r-arg>
-    </r-call>
+    <p>
+      <span>balance of wstETH in stETH: </span>
+      <r-call type="eth_call" to="$wstETH" method="balanceOf($stETH)" />
+    </p>
   </body>
 </html>

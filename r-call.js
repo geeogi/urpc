@@ -35,7 +35,7 @@ class RPCCall extends HTMLElement {
     const directory = document.getElementsByTagName("r-directory")?.[0];
 
     return directory !== undefined && value?.includes?.("$")
-      ? directory.getAddress(value.replace("$", ""))
+      ? directory.getVariable(value.replace("$", ""))
       : value;
   }
 

@@ -1,33 +1,33 @@
 class RPCDirectory extends HTMLElement {
   constructor() {
     super();
-    this.addresses = new Map();
+    this.variables = new Map();
   }
 
   connectedCallback() {
     this.loadEntries();
   }
 
-  // Method to load addresses from the light DOM
+  // Method to load variables from the light DOM
   loadEntries() {
-    const entryElements = this.querySelectorAll("r-address");
-    entryElements.forEach((address) => {
-      const name = address.getAttribute("name");
-      const value = address.textContent.trim();
+    const entryElements = this.querySelectorAll("var");
+    entryElements.forEach((variable) => {
+      const name = variable.getAttribute("name");
+      const value = variable.textContent.trim();
       if (name) {
-        this.addresses.set(name, value);
+        this.variables.set(name, value);
       }
     });
   }
 
-  // Method to get an address by name
-  getAddress(name) {
-    return this.addresses.get(name) || null;
+  // Method to get an variable by name
+  getVariable(name) {
+    return this.variables.get(name) || null;
   }
 
-  // If dynamic updates of addresses are needed
+  // If dynamic updates of variables are needed
   updateEntry(name, value) {
-    this.addresses.set(name, value);
+    this.variables.set(name, value);
   }
 }
 
