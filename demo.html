@@ -4,8 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RPC Web Components Test</title>
-    <script type="module" src="urpc-directory.js"></script>
-    <script type="module" src="urpc-call.js"></script>
+    <script type="module" src="urpc.js"></script>
   </head>
   <body>
     <urpc-url>
@@ -29,13 +28,14 @@
       <var name="wstETH.decimals">18</var>
     </urpc-directory>
     <p>
-      <span>balance of wstETH in stETH: </span>
+      <span>balance of stETH in wstETH: </span>
       <urpc-call
-        to="$wstETH"
+        to="$stETH"
         method="$balanceOf(address)"
-        args="$stETH"
-        decimals="$stETH.decimals"
-      />
+        args="$wstETH"
+        decimals="$wstETH.decimals"
+        format="pretty"
+      ></urpc-call>
     </p>
   </body>
 </html>
