@@ -12,12 +12,8 @@ class URPCDirectory extends HTMLElement {
     this.variables = new Map();
   }
 
+  // Load variables from the light DOM
   connectedCallback() {
-    this.loadEntries();
-  }
-
-  // Method to load variables from the light DOM
-  loadEntries() {
     const entryElements = this.querySelectorAll("var");
     entryElements.forEach((variable) => {
       const name = variable.getAttribute("name");
@@ -46,32 +42,37 @@ class URPCCall extends HTMLElement {
     this.attachShadow({ mode: "open" });
   }
 
-  // Collects data from the light DOM and executes the RPC call
+  // Executes the RPC call
   async connectedCallback() {
-    const directory = document.getElementsByTagName(DIRECTORY_TAG)?.[0];
-    const lookup = (v) => directory.lookup(v);
-    // Extract the attributes and elements needed for the RPC call
-    const type = this.getAttribute("type") || "eth_call";
-    const to = lookup(this.getAttribute("to"));
-    const method = lookup(this.getAttribute("method"));
-    const args = this.getAttribute("args")?.split(",").map(lookup);
-    const response = await callRPC(type, to, method, args);
+    const { type, to, method, args } = this.loadAttributes();
+    const url = document.querySelector(URL_TAG)?.textContent?.trim();
+    const response = await callRPC(url, type, to, method, args);
 
     if (response) {
       // Handle the successful RPC response
       const { value } = response;
-      const decimals = parseInt(lookup(this.getAttribute("decimals")));
+      const decimals = lookup(this.getAttribute("decimals"));
       this.shadowRoot.innerHTML = parseReturn(value, decimals);
     } else {
       // Handle error or no response
       this.shadowRoot.innerHTML = "Error in RPC call";
     }
   }
+
+  // Extract the attributes needed for the RPC call
+  loadAttributes() {
+    const directory = document.getElementsByTagName(DIRECTORY_TAG)?.[0];
+    const lookup = (v) => directory.lookup(v);
+    const type = this.getAttribute("type") || "eth_call";
+    const to = lookup(this.getAttribute("to"));
+    const method = lookup(this.getAttribute("method"));
+    const args = this.getAttribute("args")?.split(",").map(lookup);
+    return { type, to, method, args };
+  }
 }
 
 // Call RPC
-async function callRPC(type, contractAddress, methodSignature, args = []) {
-  const endpoint = document.querySelector(URL_TAG)?.textContent?.trim();
+async function callRPC(url, type, contractAddress, methodSignature, args = []) {
   const data = encodeMethodCall(methodSignature, args);
 
   const payload = {
@@ -81,7 +82,7 @@ async function callRPC(type, contractAddress, methodSignature, args = []) {
     params: [{ to: contractAddress, data: data }, "latest"],
   };
 
-  const response = await fetch(endpoint, {
+  const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -129,6 +130,39 @@ function parseReturn(value, decimals) {
   } else {
     return value;
   }
+}
+
+// SSR
+async function generateCacheForHTMLString(html) {
+  const url = html.split(URL_TAG)[1].split(">")[1].split(`</${URL_TAG}`).trim();
+
+  const vars = html
+    .split(DIRECTORY_TAG)[1]
+    .split(DIRECTORY_TAG)[0]
+    .split("<var");
+
+  const directory = new Map();
+
+  vars.forEach((variable) => {
+    const name = variable.split('name="')[1].split('"')[0];
+    const value = variable.split('">')[1].split("</var")[0];
+    directory.set(name, value);
+  });
+
+  const lookup = (v) => directory.get(v) || v;
+
+  const calls = html.split(`<${CALL_TAG}`).map(async (call) => {
+    const type = call.split('type="')[1]?.split('"')[0] || "eth_call";
+    const to = lookup(call.split('to="')[1].split('"')[0]);
+    const method = lookup(call.split('method="')[1].split('"')[0]);
+    const args = call.split('args="')[1].split('"')[0].split(",").map(lookup);
+    const decimals = lookup(call.split('decimals="')[1].split('"')[0]);
+    const response = await callRPC(url, type, to, method, args);
+    const { value } = response;
+    return parseReturn(value, decimals);
+  });
+
+  console.log(await Promise.all(calls));
 }
 
 customElements.define(DIRECTORY_TAG, URPCDirectory);
