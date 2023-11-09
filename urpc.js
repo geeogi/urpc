@@ -61,8 +61,7 @@ class URPCCall extends HTMLElement {
       // Handle the successful RPC response
       const { value } = response;
       const decimals = parseInt(lookup(this.getAttribute("decimals")));
-      const format = this.getAttribute("format");
-      this.shadowRoot.innerHTML = parseReturn(value, format, decimals);
+      this.shadowRoot.innerHTML = parseReturn(value, decimals);
     } else {
       // Handle error or no response
       this.shadowRoot.innerHTML = "Error in RPC call";
@@ -115,22 +114,18 @@ function padArgument(arg) {
     : arg.padStart(64, "0");
 }
 
-// Parse return value
-function parseReturn(value, format, decimals) {
+// Pretty parse return value
+function parseReturn(value, decimals) {
   if (decimals) {
     const num = parseInt(value, 16) / 10 ** decimals;
-    if (format === "pretty") {
-      return num > 9999
-        ? // locale comma string for large values
-          Math.round(num).toLocaleString()
-        : num > 1
-        ? // 2 decimal places
-          Math.round(num * 100) / 100
-        : // 5 decimal places
-          Math.round(num * 100000) / 100000;
-    } else {
-      return num;
-    }
+    return num > 9999
+      ? // locale comma string for large values
+        Math.round(num).toLocaleString()
+      : num > 1
+      ? // 2 decimal places
+        Math.round(num * 100) / 100
+      : // 5 decimal places
+        Math.round(num * 100000) / 100000;
   } else {
     return value;
   }
