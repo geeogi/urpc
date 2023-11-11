@@ -3,13 +3,7 @@ const DIRECTORY_TAG = `${TAG_PREFIX}-directory`;
 const CALL_TAG = `${TAG_PREFIX}-call`;
 const URL_TAG = `${TAG_PREFIX}-url`;
 
-// Define cache for browser or server
 let CACHE = {};
-
-// Seed cache from window object if available
-if (typeof window !== "undefined") {
-  CACHE = window._URPC_CACHE || CACHE;
-}
 
 // Define the web components classes conditionally for the browser
 if (typeof window !== "undefined") {
@@ -162,11 +156,15 @@ function parseReturn(value, decimals) {
 
 // SSR
 async function generateCacheForHTMLString(html) {
-  const url = html.split(URL_TAG)[1].split(">")[1].split("</")[0].trim();
+  const url = html
+    .split(`<${URL_TAG}`)[1]
+    .split(">")[1]
+    .split(`</${URL_TAG}`)[0]
+    .trim();
 
   const vars = html
-    .split(DIRECTORY_TAG)[1]
-    .split(DIRECTORY_TAG)[0]
+    .split(`<${DIRECTORY_TAG}`)[1]
+    .split(`</${DIRECTORY_TAG}`)[0]
     .split("<var")
     .filter((item) => item.includes("var"));
 
@@ -183,8 +181,9 @@ async function generateCacheForHTMLString(html) {
 
   const calls = html
     .split(`<${CALL_TAG}`)
-    .filter((item) => item.includes("method="))
-    .map(async (call) => {
+    .filter((item) => item.includes('method="'))
+    .map(async (call, index) => {
+      console.log(`making call: ${index + 1}`);
       const type = call.split('type="')[1]?.split('"')[0] || "eth_call";
       const to = lookup(call.split('to="')[1].split('"')[0]);
       const method = lookup(call.split('method="')[1].split('"')[0]);
@@ -195,20 +194,25 @@ async function generateCacheForHTMLString(html) {
       return parseReturn(value, decimals);
     });
 
-  await Promise.all(calls);
+  const results = await Promise.all(calls);
 
-  console.log(CACHE);
+  let template = html.slice();
 
-  const result = html.replace(
-    "<!-- URPC_CACHE -->",
-    [
-      "<script>",
-      `window._URPC_CACHE = ${JSON.stringify(CACHE, null, 2)}`,
-      "</script>",
-    ].join("\n")
-  );
+  results.forEach((result) => {
+    template =
+      template.split(`<${CALL_TAG}`)[0] +
+      result +
+      template.split(`</${CALL_TAG}>`).slice(1).join(`</${CALL_TAG}>`);
+  });
 
-  console.log(result);
+  template =
+    template.split(`<${URL_TAG}`)[0] + template.split(`</${URL_TAG}>`)[1];
+
+  template =
+    template.split(`<${DIRECTORY_TAG}`)[0] +
+    template.split(`</${DIRECTORY_TAG}>`)[1];
+
+  console.log(template);
 }
 
 if (typeof module !== "undefined") {

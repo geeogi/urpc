@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RPC Web Components Test</title>
-    <!-- URPC_CACHE -->
     <script type="module" src="urpc.js"></script>
   </head>
   <body>
@@ -21,7 +20,6 @@
       <var name="getNodeOperatorsCount()">0xa70c70e4</var>
       <var name="getBufferedEther()">0x47b714e0</var>
       <var name="numPods()">0xa6a509be</var>
-
       <!-- addresses -->
       <var name="stETH">0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84</var>
       <var name="stETH.decimals">18</var>
@@ -30,18 +28,25 @@
     </urpc-directory>
     <p>
       <span>balance of stETH in wstETH: </span>
-      <urpc-call
-        to="$stETH"
-        method="$balanceOf(address)"
-        args="$wstETH"
-        decimals="$wstETH.decimals"
-      ></urpc-call>
-      <urpc-call
-        to="$stETH"
-        method="$balanceOf(address)"
-        args="$stETH"
-        decimals="$stETH.decimals"
-      ></urpc-call>
+      <span>
+        <urpc-call
+          to="$stETH"
+          method="$balanceOf(address)"
+          args="$wstETH"
+          decimals="$wstETH.decimals"
+        ></urpc-call>
+      </span>
+    </p>
+    <p>
+      <span>balance of wstETH in stETH: </span>
+      <span>
+        <urpc-call
+          to="$wstETH"
+          method="$balanceOf(address)"
+          args="$stETH"
+          decimals="$stETH.decimals"
+        ></urpc-call>
+      </span>
     </p>
   </body>
 </html>
