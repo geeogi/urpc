@@ -1,0 +1,16 @@
+const fs = require("fs");
+const { generateCacheForHTMLString } = require("./urpc");
+
+// Specify the path to your HTML file
+const filePath = "demo.html";
+
+// Read the HTML file as a string
+fs.readFile(filePath, "utf8", (err, data) => {
+  if (err) {
+    console.error(`Error reading the file: ${err}`);
+    return;
+  }
+
+  // Print the HTML content as a string
+  generateCacheForHTMLString(data);
+});
