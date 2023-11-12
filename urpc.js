@@ -28,7 +28,7 @@ if (typeof window !== "undefined") {
 
     // Method to lookup a value
     lookup(value) {
-      if (value.includes("$")) {
+      if (value?.includes("$")) {
         const key = value.replace("$", "");
         return this.variables.get(key);
       } else {
@@ -135,7 +135,7 @@ function padArgument(arg) {
 
 // Pretty parse return value
 function parseReturn(value, decimals) {
-  if (decimals) {
+  if (decimals !== undefined) {
     const num = parseInt(value, 16) / 10 ** decimals;
     return num > 9999
       ? // locale comma string for large values
