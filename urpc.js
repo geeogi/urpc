@@ -69,7 +69,7 @@ if (typeof window !== "undefined") {
       const type = this.getAttribute("type") || "eth_call";
       const to = lookup(this.getAttribute("to"));
       const method = lookup(this.getAttribute("method"));
-      const args = this.getAttribute("args")?.split(",").map(lookup);
+      const args = this.getAttribute("args")?.split(",").map(lookup) || [];
       const decimals = lookup(this.getAttribute("decimals"));
       return { type, to, method, args, decimals };
     }
@@ -80,25 +80,20 @@ if (typeof window !== "undefined") {
 }
 
 // Call RPC
-async function callRPC(url, type, contractAddress, methodSignature, args = []) {
-  const cacheKey = [
-    type,
-    contractAddress,
-    methodSignature,
-    args.join(","),
-  ].join(";");
+async function callRPC(url, type, to, method, args = []) {
+  const cacheKey = [type, to, method, args.join(",")].join(";");
 
   if (CACHE[cacheKey]) {
     return CACHE[cacheKey];
   }
 
-  const data = encodeMethodCall(methodSignature, args);
+  const data = encodeMethodCall(method, args);
 
   const payload = {
     jsonrpc: "2.0",
     id: 1,
     method: type,
-    params: [{ to: contractAddress, data: data }, "latest"],
+    params: [{ to, data }, "latest"],
   };
 
   const response = await fetch(url, {
@@ -114,7 +109,8 @@ async function callRPC(url, type, contractAddress, methodSignature, args = []) {
   }
 
   const value = json.result;
-  const result = { type, contractAddress, methodSignature, args, value };
+
+  const result = { type, to, method, args, value };
 
   CACHE[cacheKey] = result;
 
@@ -122,8 +118,8 @@ async function callRPC(url, type, contractAddress, methodSignature, args = []) {
 }
 
 // Encode method call data for Ethereum transaction
-function encodeMethodCall(methodSignature, args) {
-  let data = methodSignature;
+function encodeMethodCall(method, args) {
+  let data = method;
   for (let i = 0; i < args.length; i++) {
     data += padArgument(args[i]);
   }
@@ -155,7 +151,7 @@ function parseReturn(value, decimals) {
 }
 
 // SSR
-async function generateCacheForHTMLString(html) {
+async function renderToString(html) {
   const url = html
     .split(`<${URL_TAG}`)[1]
     .split(">")[1]
@@ -166,7 +162,7 @@ async function generateCacheForHTMLString(html) {
     .split(`<${DIRECTORY_TAG}`)[1]
     .split(`</${DIRECTORY_TAG}`)[0]
     .split("<var")
-    .filter((item) => item.includes("var"));
+    .filter((item) => item.includes('name="'));
 
   const directory = new Map();
 
@@ -179,42 +175,52 @@ async function generateCacheForHTMLString(html) {
   const lookup = (v) =>
     v?.includes("$") ? directory.get(v.replace("$", "")) : v || v;
 
-  const calls = html
-    .split(`<${CALL_TAG}`)
-    .filter((item) => item.includes('method="'))
-    .map(async (call, index) => {
-      console.log(`making call: ${index + 1}`);
-      const type = call.split('type="')[1]?.split('"')[0] || "eth_call";
-      const to = lookup(call.split('to="')[1].split('"')[0]);
-      const method = lookup(call.split('method="')[1].split('"')[0]);
-      const args = call.split('args="')[1].split('"')[0].split(",").map(lookup);
-      const decimals = lookup(call.split('decimals="')[1].split('"')[0]);
-      const response = await callRPC(url, type, to, method, args);
-      const { value } = response;
-      return parseReturn(value, decimals);
-    });
-
-  const results = await Promise.all(calls);
+  const calls = await Promise.all(
+    html
+      .split(`<${CALL_TAG}`)
+      .filter((item) => item.includes('method="'))
+      .map(async (call) => {
+        const type = call.split('type="')[1]?.split('"')[0] || "eth_call";
+        const to = lookup(call.split('to="')[1].split('"')[0]);
+        const method = lookup(call.split('method="')[1].split('"')[0]);
+        const args =
+          call.split('args="')?.[1]?.split('"')?.[0]?.split(",")?.map(lookup) ||
+          [];
+        const decimals = lookup(call.split('decimals="')[1].split('"')[0]);
+        const response = await callRPC(url, type, to, method, args);
+        const { value } = response;
+        return parseReturn(value, decimals);
+      })
+  );
 
   let template = html.slice();
 
-  results.forEach((result) => {
+  // insert call results
+  calls.forEach((result) => {
     template =
       template.split(`<${CALL_TAG}`)[0] +
       result +
       template.split(`</${CALL_TAG}>`).slice(1).join(`</${CALL_TAG}>`);
   });
 
+  // remove url
   template =
     template.split(`<${URL_TAG}`)[0] + template.split(`</${URL_TAG}>`)[1];
 
+  // remove directory
   template =
     template.split(`<${DIRECTORY_TAG}`)[0] +
     template.split(`</${DIRECTORY_TAG}>`)[1];
 
-  console.log(template);
+  // cleanup blank lines
+  template = template
+    .split("\n")
+    .filter((line) => line.trim() !== "")
+    .join("\n");
+
+  return template;
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { generateCacheForHTMLString };
+  module.exports = { renderToString };
 }
