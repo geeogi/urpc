@@ -5,10 +5,17 @@ const URL_TAG = `${TAG_PREFIX}-url`;
 
 let CACHE = {};
 
-// Define the web components classes conditionally for the browser
+/*
+ * Define web components classes for browser environments
+ */
 if (typeof window !== "undefined") {
   /*
-   * Directory
+   * Directory: define variables to use in urpc
+   *
+   * <urpc-directory>
+   *   <var name="stETH">0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84</var>
+   *   <var name="balanceOf(address)">0x70a08231</var>
+   * </urpc-directory>
    */
   class URPCDirectory extends HTMLElement {
     constructor() {
@@ -38,7 +45,14 @@ if (typeof window !== "undefined") {
   }
 
   /*
-   * RPC Call
+   * RPC Call: make an RPC call
+   *
+   *     <urpc-call
+   *       to="$stETH"
+   *       method="$balanceOf(address)"
+   *       args="$unstETH"
+   *       decimals="18"
+   *     ></urpc-call>
    */
   class URPCCall extends HTMLElement {
     constructor() {
@@ -150,7 +164,7 @@ function parseReturn(value, decimals) {
   }
 }
 
-// SSR
+// SSR: render urpc in server environments
 async function renderToString(html) {
   const url = html
     .split(`<${URL_TAG}`)[1]

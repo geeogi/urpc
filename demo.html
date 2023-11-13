@@ -8,21 +8,23 @@
   </head>
   <body>
     <urpc-url style="display: none">
-      https://eth-mainnet.g.alchemy.com/v2/VjRG6l7jUiq9cJNzPDoLIw2lFz-pz_Ra
+      https://eth-mainnet.g.alchemy.com/v2/$KEY
     </urpc-url>
     <urpc-directory style="display: none">
       <!-- addresses -->
       <var name="stETH">0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84</var>
+      <var name="unstETH">0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1</var>
       <!-- method signatures -->
-      <var name="totalSupply()">0x18160ddd</var>
+      <var name="balanceOf(address)">0x70a08231</var>
     </urpc-directory>
     <p>
-      <span>stETH supply: </span>
-      <!-- RPC -->
+      <span>stETH withdrawal queue: </span>
+      <!-- RPC HTML -->
       <span>
         <urpc-call
           to="$stETH"
-          method="$totalSupply()"
+          method="$balanceOf(address)"
+          args="$unstETH"
           decimals="18"
         ></urpc-call>
       </span>
