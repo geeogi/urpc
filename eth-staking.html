@@ -302,25 +302,150 @@
         </div>
         <div>
           <h2>EigenLayer</h2>
-          <p>stETH staked: {elStETHBalance}</p>
-          <p>cbETH staked: {elCbETHBalance}</p>
-          <p>rETH staked: {elRETHBalance}</p>
-          <p>EigenPods deployed: {elNumPods}</p>
+          <p>
+            <span>stETH staked: </span>
+            <span>
+              <urpc-call
+                to="$EigenLayer stETH"
+                method="$balanceOf(address)"
+                args="$stETH"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
+          <p>
+            <span>cbETH staked: </span>
+            <span>
+              <urpc-call
+                to="$EigenLayer cbETH"
+                method="$balanceOf(address)"
+                args="$cbETH"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
+          <p>
+            <span>rETH staked: </span>
+            <span>
+              <urpc-call
+                to="$EigenLayer rETH"
+                method="$balanceOf(address)"
+                args="$rETH"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
+          <p>
+            <span>EigenPods deployed: </span>
+            <span>
+              <urpc-call
+                to="$EigenLayer Pod Manager"
+                method="$numPods()"
+              ></urpc-call>
+            </span>
+          </p>
         </div>
         <div>
           <h2>Lending</h2>
-          <p>Aave V2 stETH: {aaveV2StETHBalance}</p>
-          <p>Aave V3 wstETH: {aaveV3WstETHBalance}</p>
-          <p>Aave V3 cbETH: {aaveV3CbETHBalance}</p>
-          <p>Aave V3 rETH: {aaveV3RETHBalance}</p>
-          <p>Compound V3 wstETH: {compoundV3WstETH}</p>
-          <p>Compound V3 cbETH: {compoundV3CbETH}</p>
+          <p>
+            <span>Aave V2 stETH: </span>
+            <span>
+              <urpc-call
+                to="$Aave V2 stETH"
+                method="$balanceOf(address)"
+                args="$stETH"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
+          <p>
+            <span>Aave V3 wstETH: </span>
+            <span>
+              <urpc-call
+                to="$Aave V3 wstETH"
+                method="$balanceOf(address)"
+                args="$wstETH"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
+          <p>
+            <span>Aave V3 cbETH: </span>
+            <span>
+              <urpc-call
+                to="$Aave V3 cbETH"
+                method="$balanceOf(address)"
+                args="$cbETH"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
+          <p>
+            <span>Aave V3 rETH: </span>
+            <span>
+              <urpc-call
+                to="$Aave V3 rETH"
+                method="$balanceOf(address)"
+                args="$rETH"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
+          <p>
+            <span>Compound V3 wstETH: </span>
+            <span>
+              <urpc-call
+                to="$Compound V3 WETH"
+                method="$balanceOf(address)"
+                args="$wstETH"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
+          <p>
+            <span>Compound V3 cbETH: </span>
+            <span>
+              <urpc-call
+                to="$Compound V3 WETH"
+                method="$balanceOf(address)"
+                args="$cbETH"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
         </div>
         <div>
           <h2>LST-backed stables</h2>
-          <p>Prisma mkUSD supply: {prismaMkUSDSupply}</p>
-          <p>Lybra eUSD supply: {lybraEUSDSupply}</p>
-          <p>Raft R supply: {raftRSupply}</p>
+          <p>
+            <span>Prisma mkUSD supply: </span>
+            <span>
+              <urpc-call
+                to="$mkUSD"
+                method="$totalSupply()"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
+          <p>
+            <span>Lybra eUSD supply: </span>
+            <span>
+              <urpc-call
+                to="$eUSD"
+                method="$totalSupply()"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
+          <p>
+            <span>Raft R supply: </span>
+            <span>
+              <urpc-call
+                to="$R"
+                method="$totalSupply()"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
         </div>
         <div>
           <h2>Liquid restaking</h2>
@@ -333,9 +458,36 @@
               >
             </i>
           </p>
-          <p>Stader ETHx supply: {ETHxSupply}</p>
-          <p>ether.fi eETH supply: {eETHSupply}</p>
-          <p>Astrid rstETH supply: {rstETHSupply}</p>
+          <p>
+            <span>Stader ETHx supply: </span>
+            <span>
+              <urpc-call
+                to="$ETHx"
+                method="$totalSupply()"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
+          <p>
+            <span>ether.fi eETH supply: </span>
+            <span>
+              <urpc-call
+                to="$eETH"
+                method="$totalSupply()"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
+          <p>
+            <span>Astrid rstETH supply: </span>
+            <span>
+              <urpc-call
+                to="$rstETH"
+                method="$totalSupply()"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
           <p>
             Rio Network:
             <a
