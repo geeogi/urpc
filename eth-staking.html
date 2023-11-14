@@ -29,7 +29,7 @@
       <var name="eUSD">0x97de57eC338AB5d51557DA3434828C5DbFaDA371</var>
       <var name="frxETH">0x5e8422345238f34275888049021821e8e08caa1f</var>
       <var name="mkUSD">0x4591dbff62656e7859afe5e45f6f47d3669fbb28</var>
-      <var name="r">0x183015a9bA6fF60230fdEaDc3F43b3D788b13e21</var>
+      <var name="R">0x183015a9bA6fF60230fdEaDc3F43b3D788b13e21</var>
       <var name="rETH">0xae78736cd615f374d3085123a210448e74fc6393</var>
       <var name="rstETH">0xD36306A5D6BFDe4F57b5159C6518D93f171fE755</var>
       <var name="sETH2">0xFe2e637202056d30016725477c5da089Ab0A043A</var>
@@ -227,6 +227,17 @@
             <span>Curve stETH LP stETH: </span>
             <span>
               <urpc-call
+                to="$stETH"
+                method="$balanceOf(address)"
+                args="$Curve stETH"
+                decimals="18"
+              ></urpc-call>
+            </span>
+          </p>
+          <p>
+            <span>Curve stETH LP ETH: </span>
+            <span>
+              <urpc-call
                 to="$Multicall"
                 method="$getEthBalance(address)"
                 args="$Curve stETH"
@@ -281,9 +292,9 @@
             <span>wstETH on Arb: </span>
             <span>
               <urpc-call
-                to="$Arbitrum ERC20 bridge"
+                to="$wstETH"
                 method="$balanceOf(address)"
-                args="$wstETH"
+                args="$Arbitrum ERC20 bridge"
                 decimals="18"
               ></urpc-call>
             </span>
@@ -292,9 +303,9 @@
             <span>wstETH on Op: </span>
             <span>
               <urpc-call
-                to="$OP ERC20 Bridge"
+                to="$wstETH"
                 method="$balanceOf(address)"
-                args="$wstETH"
+                args="$OP ERC20 Bridge"
                 decimals="18"
               ></urpc-call>
             </span>
@@ -306,9 +317,9 @@
             <span>stETH staked: </span>
             <span>
               <urpc-call
-                to="$EigenLayer stETH"
+                to="$stETH"
                 method="$balanceOf(address)"
-                args="$stETH"
+                args="$EigenLayer stETH"
                 decimals="18"
               ></urpc-call>
             </span>
@@ -317,9 +328,9 @@
             <span>cbETH staked: </span>
             <span>
               <urpc-call
-                to="$EigenLayer cbETH"
+                to="$cbETH"
                 method="$balanceOf(address)"
-                args="$cbETH"
+                args="$EigenLayer cbETH"
                 decimals="18"
               ></urpc-call>
             </span>
@@ -328,9 +339,9 @@
             <span>rETH staked: </span>
             <span>
               <urpc-call
-                to="$EigenLayer rETH"
+                to="$rETH"
                 method="$balanceOf(address)"
-                args="$rETH"
+                args="$EigenLayer rETH"
                 decimals="18"
               ></urpc-call>
             </span>
@@ -351,9 +362,9 @@
             <span>Aave V2 stETH: </span>
             <span>
               <urpc-call
-                to="$Aave V2 stETH"
+                to="$stETH"
                 method="$balanceOf(address)"
-                args="$stETH"
+                args="$Aave V2 stETH"
                 decimals="18"
               ></urpc-call>
             </span>
@@ -362,9 +373,9 @@
             <span>Aave V3 wstETH: </span>
             <span>
               <urpc-call
-                to="$Aave V3 wstETH"
+                to="$wstETH"
                 method="$balanceOf(address)"
-                args="$wstETH"
+                args="$Aave V3 wstETH"
                 decimals="18"
               ></urpc-call>
             </span>
@@ -373,9 +384,9 @@
             <span>Aave V3 cbETH: </span>
             <span>
               <urpc-call
-                to="$Aave V3 cbETH"
+                to="$cbETH"
                 method="$balanceOf(address)"
-                args="$cbETH"
+                args="$Aave V3 cbETH"
                 decimals="18"
               ></urpc-call>
             </span>
@@ -384,9 +395,9 @@
             <span>Aave V3 rETH: </span>
             <span>
               <urpc-call
-                to="$Aave V3 rETH"
+                to="$rETH"
                 method="$balanceOf(address)"
-                args="$rETH"
+                args="$Aave V3 rETH"
                 decimals="18"
               ></urpc-call>
             </span>
@@ -395,9 +406,9 @@
             <span>Compound V3 wstETH: </span>
             <span>
               <urpc-call
-                to="$Compound V3 WETH"
+                to="$wstETH"
                 method="$balanceOf(address)"
-                args="$wstETH"
+                args="$Compound V3 WETH"
                 decimals="18"
               ></urpc-call>
             </span>
@@ -406,9 +417,9 @@
             <span>Compound V3 cbETH: </span>
             <span>
               <urpc-call
-                to="$Compound V3 WETH"
+                to="$cbETH"
                 method="$balanceOf(address)"
-                args="$cbETH"
+                args="$Compound V3 WETH"
                 decimals="18"
               ></urpc-call>
             </span>

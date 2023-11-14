@@ -119,6 +119,7 @@ async function callRPC(url, type, to, method, args = []) {
   const json = await response.json();
 
   if (json.error) {
+    console.error("RPC call failed:", { to, method, args });
     throw new Error(json.error.message);
   }
 
