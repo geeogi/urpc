@@ -102,23 +102,23 @@
           <var>swETH:0xf951e335afb289353dc249e82926178eac7ded78</var>
           <var>unstETH:0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1</var>
           <var>wstETH:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0</var>
-          <var>Aave V2 stETH:0x1982b2F5814301d4e9a8b0201555376e62F82428</var>
-          <var>Aave V3 cbETH:0x977b6fc5de62598b08c85ac8cf2b745874e8b78c</var>
-          <var>Aave V3 rETH:0xCc9EE9483f662091a1de4795249E24aC0aC2630f</var>
+          <var>aaveV2StETH:0x1982b2F5814301d4e9a8b0201555376e62F82428</var>
+          <var>aaveV3CbETH:0x977b6fc5de62598b08c85ac8cf2b745874e8b78c</var>
+          <var>aaveV3RETH:0xCc9EE9483f662091a1de4795249E24aC0aC2630f</var>
           <var>crvStETH:0xdc24316b9ae028f1497c275eb9192a3ea0f67022</var>
-          <var>Diva ETH:0x16770d642e882e1769ce4ac8612b8bc0601506fc</var>
-          <var>Diva stETH:0x1ce8aAfb51e79F6BDc0EF2eBd6fD34b00620f6dB</var>
-          <var>Aave V3 wstETH:0x0B925eD163218f6662a35e0f0371Ac234f9E9371</var>
-          <var>Arb ERC20 Bridge:0x0F25c1DC2a9922304f2eac71DCa9B07E310e8E5a</var>
+          <var>divaETH:0x16770d642e882e1769ce4ac8612b8bc0601506fc</var>
+          <var>divastETH:0x1ce8aAfb51e79F6BDc0EF2eBd6fD34b00620f6dB</var>
+          <var>aaveV3WstETH:0x0B925eD163218f6662a35e0f0371Ac234f9E9371</var>
+          <var>arb20Bridge:0x0F25c1DC2a9922304f2eac71DCa9B07E310e8E5a</var>
           <var>ETH/USD:0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419</var>
           <var>stETH/ETH:0x86392dC19c0b719886221c78AB11eb8Cf5c52812</var>
-          <var>Compound V3 WETH:0xA17581A9E3356d9A858b789D68B4d866e593aE94</var>
-          <var>EL Pod Manager:0x91E677b07F7AF907ec9a428aafA9fc14a0d3A338</var>
-          <var>EigenLayer cbETH:0x54945180dB7943c0ed0FEE7EdaB2Bd24620256bc</var>
-          <var>EigenLayer rETH:0x1BeE69b7dFFfA4E2d53C2a2Df135C388AD25dCD2</var>
-          <var>EigenLayer stETH:0x93c4b944D05dfe6df7645A86cd2206016c51564D</var>
-          <var>LidoRegistry:0x55032650b14df07b85bF18A3a3eC8E0Af2e028d5</var>
-          <var>OP ERC20 Bridge:0x76943C0D61395d8F2edF9060e1533529cAe05dE6</var>
+          <var>compV3WstETH:0xA17581A9E3356d9A858b789D68B4d866e593aE94</var>
+          <var>elPodManager:0x91E677b07F7AF907ec9a428aafA9fc14a0d3A338</var>
+          <var>elCbETH:0x54945180dB7943c0ed0FEE7EdaB2Bd24620256bc</var>
+          <var>elRETH:0x1BeE69b7dFFfA4E2d53C2a2Df135C388AD25dCD2</var>
+          <var>elStETH:0x93c4b944D05dfe6df7645A86cd2206016c51564D</var>
+          <var>lidoRegistry:0x55032650b14df07b85bF18A3a3eC8E0Af2e028d5</var>
+          <var>op20Bridge:0x76943C0D61395d8F2edF9060e1533529cAe05dE6</var>
         </u-directory>
         <div>
           <h2 style="margin-top: 0px">ETH</h2>
@@ -136,8 +136,8 @@
         </div>
         <div>
           <h2>DVT</h2>
-          <p>Diva stETH staked: <u-c>$stETH.$balanceOf($Diva stETH).18</u-c></p>
-          <p>Diva ETH staked: <u-c>$Diva ETH.$totalSupply().18</u-c></p>
+          <p>Diva stETH staked: <u-c>$stETH.$balanceOf($divaStETH).18</u-c></p>
+          <p>Diva ETH staked: <u-c>$divaETH.$totalSupply().18</u-c></p>
           <p>
             SSV ETH staked: <a href="https://ssv.network">22k</a> as of Oct 2023
           </p>
@@ -163,7 +163,7 @@
           </p>
           <p>
             Lido operators:
-            <u-c>$LidoRegistry.$getNodeOperatorsCount().0</u-c>
+            <u-c>$lidoRegistry.$getNodeOperatorsCount().0</u-c>
           </p>
           <p>stETH buffered ETH: <u-c>$stETH.$getBufferedEther().18</u-c></p>
           <p>
@@ -174,39 +174,27 @@
         <div>
           <h2>Lido wstETH</h2>
           <p>wstETH supply: <u-c>$wstETH.$totalSupply().18</u-c></p>
-          <p>
-            wstETH on Arb: <u-c>$wstETH.$balanceOf($Arb ERC20 Bridge).18</u-c>
-          </p>
-          <p>
-            wstETH on Op: <u-c>$wstETH.$balanceOf($OP ERC20 Bridge).18</u-c>
-          </p>
+          <p>wstETH on Arb: <u-c>$wstETH.$balanceOf($arb20Bridge).18</u-c></p>
+          <p>wstETH on Op: <u-c>$wstETH.$balanceOf($op20Bridge).18</u-c></p>
         </div>
         <div>
           <h2>EigenLayer</h2>
-          <p>
-            stETH staked: <u-c>$stETH.$balanceOf($EigenLayer stETH).18</u-c>
-          </p>
-          <p>
-            cbETH staked: <u-c>$cbETH.$balanceOf($EigenLayer cbETH).18</u-c>
-          </p>
-          <p>rETH staked: <u-c>$rETH.$balanceOf($EigenLayer rETH).18</u-c></p>
-          <p>EigenPods deployed: <u-c>$EL Pod Manager.$numPods().0</u-c></p>
+          <p>stETH staked: <u-c>$stETH.$balanceOf($elStETH).18</u-c></p>
+          <p>cbETH staked: <u-c>$cbETH.$balanceOf($elCbETH).18</u-c></p>
+          <p>rETH staked: <u-c>$rETH.$balanceOf($elRETH).18</u-c></p>
+          <p>EigenPods deployed: <u-c>$elPodManager.$numPods().0</u-c></p>
         </div>
         <div>
           <h2>Lending</h2>
-          <p>Aave V2 stETH: <u-c>$stETH.$balanceOf($Aave V2 stETH).18</u-c></p>
+          <p>Aave V2 stETH: <u-c>$stETH.$balanceOf($aaveV2StETH).18</u-c></p>
+          <p>Aave V3 wstETH: <u-c>$wstETH.$balanceOf($aaveV3WstETH).18</u-c></p>
+          <p>Aave V3 cbETH: <u-c>$cbETH.$balanceOf($aaveV3CbETH).18</u-c></p>
+          <p>Aave V3 rETH: <u-c>$rETH.$balanceOf($aaveV3RETH).18</u-c></p>
           <p>
-            Aave V3 wstETH: <u-c>$wstETH.$balanceOf($Aave V3 wstETH).18</u-c>
-          </p>
-          <p>Aave V3 cbETH: <u-c>$cbETH.$balanceOf($Aave V3 cbETH).18</u-c></p>
-          <p>Aave V3 rETH: <u-c>$rETH.$balanceOf($Aave V3 rETH).18</u-c></p>
-          <p>
-            Compound V3 wstETH:
-            <u-c>$wstETH.$balanceOf($Compound V3 WETH).18</u-c>
+            Compound V3 wstETH: <u-c>$wstETH.$balanceOf($compV3WstETH).18</u-c>
           </p>
           <p>
-            Compound V3 cbETH:
-            <u-c>$cbETH.$balanceOf($Compound V3 WETH).18</u-c>
+            Compound V3 cbETH: <u-c>$cbETH.$balanceOf($compV3WstETH).18</u-c>
           </p>
         </div>
         <div>
