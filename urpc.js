@@ -1,7 +1,7 @@
-const TAG_PREFIX = "urpc";
+const TAG_PREFIX = "u";
 const DIRECTORY_TAG = `${TAG_PREFIX}-directory`;
-const CALL_TAG = `${TAG_PREFIX}-call`;
 const URL_TAG = `${TAG_PREFIX}-url`;
+const CALL_TAG = `${TAG_PREFIX}-c`;
 
 let CACHE = {};
 
@@ -91,7 +91,11 @@ if (typeof window !== "undefined") {
 function parseUrpcCallString(call) {
   const to = call.split(".")[0];
   const methodName = call.split(".")[1].split("(")[0];
-  const args = call.split("(")[1].split(")")[0].split(",");
+  const args = call
+    .split("(")[1]
+    .split(")")[0]
+    .split(",")
+    .filter((arg) => arg !== "");
   const method = `${methodName}(${args.map((_) => "address")})`;
   const decimals = call.split(")")[1].split(".")[1];
   return { to, method, args, decimals };
