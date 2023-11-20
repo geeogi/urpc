@@ -13,8 +13,8 @@ if (typeof window !== "undefined") {
    * Directory: define variables to use in urpc
    *
    * <urpc-directory>
-   *   <var name="stETH">0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84</var>
-   *   <var name="balanceOf(address)">0x70a08231</var>
+   *   <var>stETH:0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84</var>
+   *   <var>balanceOf(address):0x70a08231</var>
    * </urpc-directory>
    */
   class URPCDirectory extends HTMLElement {
@@ -27,9 +27,8 @@ if (typeof window !== "undefined") {
     connectedCallback() {
       const entryElements = this.querySelectorAll("var");
       entryElements.forEach((variable) => {
-        const name = variable.getAttribute("name");
-        const value = variable.textContent.trim();
-        this.variables.set(name, value);
+        const [key, value] = variable.textContent.trim().split(":");
+        this.variables.set(key, value);
       });
     }
 
@@ -47,12 +46,7 @@ if (typeof window !== "undefined") {
   /*
    * RPC Call: make an RPC call
    *
-   *     <urpc-call
-   *       to="$stETH"
-   *       method="$balanceOf(address)"
-   *       args="$unstETH"
-   *       decimals="18"
-   *     ></urpc-call>
+   * <urpc-call>$stETH.balanceOf($unstETH).18</urpc-call>
    */
   class URPCCall extends HTMLElement {
     constructor() {
@@ -81,16 +75,26 @@ if (typeof window !== "undefined") {
       const directory = document.getElementsByTagName(DIRECTORY_TAG)?.[0];
       const lookup = (v) => directory.lookup(v);
       const type = this.getAttribute("type") || "eth_call";
-      const to = lookup(this.getAttribute("to"));
-      const method = lookup(this.getAttribute("method"));
-      const args = this.getAttribute("args")?.split(",").map(lookup) || [];
-      const decimals = lookup(this.getAttribute("decimals"));
+      const call = parseUrpcCallString(this.textContent.trim());
+      const to = lookup(call.to);
+      const method = lookup(call.method);
+      const args = call.args.map(lookup);
+      const decimals = lookup(call.decimals);
       return { type, to, method, args, decimals };
     }
   }
 
   customElements.define(DIRECTORY_TAG, URPCDirectory);
   customElements.define(CALL_TAG, URPCCall);
+}
+
+function parseUrpcCallString(call) {
+  const to = call.split(".")[0];
+  const methodName = call.split(".")[1].split("(")[0];
+  const args = call.split("(")[1].split(")")[0].split(",");
+  const method = `${methodName}(${args.map((_) => "address")})`;
+  const decimals = call.split(")")[1].split(".")[1];
+  return { to, method, args, decimals };
 }
 
 // Call RPC
@@ -176,32 +180,33 @@ async function renderToString(html) {
   const vars = html
     .split(`<${DIRECTORY_TAG}`)[1]
     .split(`</${DIRECTORY_TAG}`)[0]
-    .split("<var")
-    .filter((item) => item.includes('name="'));
+    .split("<var>")
+    .filter((item) => item.includes("</var>"))
+    .map((item) => item.split("</var>")[0]);
 
   const directory = new Map();
 
   vars.forEach((variable) => {
-    const name = variable.split('name="')[1].split('"')[0];
-    const value = variable.split('">')[1].split("</var")[0];
-    directory.set(name, value);
+    const [key, value] = variable.split(":");
+    directory.set(key, value);
   });
 
   const lookup = (v) =>
-    v?.includes("$") ? directory.get(v.replace("$", "")) : v || v;
+    v?.includes("$") ? directory.get(v.replace("$", ""))?.trim() : v || v;
 
   const calls = await Promise.all(
     html
       .split(`<${CALL_TAG}`)
-      .filter((item) => item.includes('method="'))
-      .map(async (call) => {
-        const type = call.split('type="')[1]?.split('"')[0] || "eth_call";
-        const to = lookup(call.split('to="')[1].split('"')[0]);
-        const method = lookup(call.split('method="')[1].split('"')[0]);
-        const args =
-          call.split('args="')?.[1]?.split('"')?.[0]?.split(",")?.map(lookup) ||
-          [];
-        const decimals = lookup(call.split('decimals="')[1].split('"')[0]);
+      .filter((item) => item.includes(`</${CALL_TAG}`))
+      .map((item) => item.split(">")[1])
+      .map((item) => item.split(`</${CALL_TAG}`)[0])
+      .map(async (item) => {
+        const type = item.split('type="')[1]?.split('"')[0] || "eth_call";
+        const call = parseUrpcCallString(item);
+        const to = lookup(call.to);
+        const method = lookup(call.method);
+        const args = call.args.map(lookup);
+        const decimals = lookup(call.decimals);
         const response = await callRPC(url, type, to, method, args);
         const { value } = response;
         return parseReturn(value, decimals);
