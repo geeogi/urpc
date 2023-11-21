@@ -1,6 +1,6 @@
 # urpc
 
-a thin layer between HTML and RPC using webcomponents 
+a thin layer between HTML and EVM RPC using web components 
 
 ```.html
 <!DOCTYPE html>
