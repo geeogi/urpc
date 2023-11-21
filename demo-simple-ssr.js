@@ -2,7 +2,7 @@ const fs = require("fs");
 const { renderToString } = require("./urpc");
 
 // Specify the path to your HTML file
-const filePath = "eth-staking.html";
+const filePath = "demo-simple.html";
 
 // Read the HTML file as a string
 fs.readFile(filePath, "utf8", (err, data) => {

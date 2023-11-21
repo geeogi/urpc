@@ -3,8 +3,6 @@ const DIRECTORY_TAG = `${TAG_PREFIX}-directory`;
 const URL_TAG = `${TAG_PREFIX}-url`;
 const CALL_TAG = `${TAG_PREFIX}-c`;
 
-let CACHE = {};
-
 /*
  * Define web components classes for browser environments
  */
@@ -64,6 +62,7 @@ if (typeof window !== "undefined") {
         // Handle the successful RPC response
         const { value } = response;
         this.shadowRoot.innerHTML = parseReturn(value, decimals);
+        this.style.display = "inline";
       } else {
         // Handle error or no response
         this.shadowRoot.innerHTML = "Error in RPC call";
@@ -88,6 +87,9 @@ if (typeof window !== "undefined") {
   customElements.define(CALL_TAG, URPCCall);
 }
 
+/*
+ * e.g. $stETH.balanceOf($unstETH).18
+ */
 function parseUrpcCallString(call) {
   const to = call.split(".")[0];
   const methodName = call.split(".")[1].split("(")[0];
@@ -103,12 +105,6 @@ function parseUrpcCallString(call) {
 
 // Call RPC
 async function callRPC(url, type, to, method, args = []) {
-  const cacheKey = [type, to, method, args.join(",")].join(";");
-
-  if (CACHE[cacheKey]) {
-    return CACHE[cacheKey];
-  }
-
   const data = encodeMethodCall(method, args);
 
   const payload = {
@@ -133,11 +129,7 @@ async function callRPC(url, type, to, method, args = []) {
 
   const value = json.result;
 
-  const result = { type, to, method, args, value };
-
-  CACHE[cacheKey] = result;
-
-  return result;
+  return { type, to, method, args, value };
 }
 
 // Encode method call data for Ethereum transaction
