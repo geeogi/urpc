@@ -1,6 +1,6 @@
 # urpc
 
-a thin layer between HTML and EVM RPC using web components 
+A thin layer between HTML and Ethereum style JSON-RPC using web components. [Learn more](https://geeogi.com/articles/urpc).
 
 ```.html
 <!DOCTYPE html>

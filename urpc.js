@@ -4,11 +4,15 @@ const URL_TAG = `${TAG_PREFIX}-url`;
 const CALL_TAG = `${TAG_PREFIX}-c`;
 
 /*
- * Define web components classes for browser environments
+ * Define web component classes for browser environments
  */
 if (typeof window !== "undefined") {
   /*
-   * Directory: define variables to use in urpc
+   *
+   * ## Directory ##
+   *
+   * Define variables in your HTML to use
+   * throughout urpc using the key:value syntax
    *
    * <urpc-directory>
    *   <var>stETH:0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84</var>
@@ -30,7 +34,7 @@ if (typeof window !== "undefined") {
       });
     }
 
-    // Method to lookup a value
+    // Method to lookup a value in this directory
     lookup(value) {
       if (value?.includes("$")) {
         const key = value.replace("$", "");
@@ -42,7 +46,9 @@ if (typeof window !== "undefined") {
   }
 
   /*
-   * RPC Call: make an RPC call
+   * ## RPC CALL ##
+   *
+   * Make inline RPC calls directly in your HTML template
    *
    * <urpc-call>$stETH.balanceOf($unstETH).18</urpc-call>
    */
@@ -88,6 +94,8 @@ if (typeof window !== "undefined") {
 }
 
 /*
+ * Parse the urpc call string syntax: $to.$method($args)?.$decimals
+ *
  * e.g. $stETH.balanceOf($unstETH).18
  */
 function parseUrpcCallString(call) {
@@ -103,7 +111,7 @@ function parseUrpcCallString(call) {
   return { to, method, args, decimals };
 }
 
-// Call RPC
+// Make an RPC call
 async function callRPC(url, type, to, method, args = []) {
   const data = encodeMethodCall(method, args);
 
@@ -132,7 +140,7 @@ async function callRPC(url, type, to, method, args = []) {
   return { type, to, method, args, value };
 }
 
-// Encode method call data for Ethereum transaction
+// Encode method call data
 function encodeMethodCall(method, args) {
   let data = method;
   for (let i = 0; i < args.length; i++) {
@@ -141,7 +149,7 @@ function encodeMethodCall(method, args) {
   return data;
 }
 
-// Pad Ethereum address or value to 32 bytes
+// Pad value to 32 bytes
 function padArgument(arg) {
   return arg.startsWith("0x")
     ? arg.slice(2).padStart(64, "0")
@@ -165,7 +173,7 @@ function parseReturn(value, decimals) {
   }
 }
 
-// SSR: render urpc in server environments
+// SSR: render urpc HTML in server environments
 async function renderToString(html) {
   const url = html
     .split(`<${URL_TAG}`)[1]
