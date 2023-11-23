@@ -60,14 +60,40 @@ if (typeof window !== "undefined") {
 
     // Executes the RPC call
     async connectedCallback() {
-      const { type, to, method, args, decimals } = this.loadAttributes();
+      const { type, to, method, args, decimals, call } = this.loadAttributes();
       const url = document.querySelector(URL_TAG)?.textContent?.trim();
       const response = await callRPC(url, type, to, method, args);
 
       if (response) {
         // Handle the successful RPC response
         const { value } = response;
-        this.shadowRoot.innerHTML = parseReturn(value, decimals);
+        const displayValue = parseReturn(value, decimals);
+        const key = Date.now();
+        const arg0 = response.args?.[0];
+        const arg1 = response.args?.[1];
+        const arg0Name = call.args?.[0]?.replace("$", "");
+        const arg1Name = call.args?.[1]?.replace("$", "");
+        const toName = call.to?.replace("$", "");
+        const methodName = call.method?.replace("$", "");
+        const onClick = `this.getRootNode().getElementById('dialog-${key}').showModal()`;
+
+        this.shadowRoot.innerHTML = [
+          `<span>${displayValue}</span>`,
+          "&nbsp;",
+          "&nbsp;",
+          `<button onclick="${onClick}">ⓘ</button>`,
+          `<dialog id="dialog-${key}">
+            <p><b>contract</b>: ${toName} (${response.to})</p>
+            <p><b>method</b>: ${methodName} (${response.method})</p>
+            ${arg0 ? `<p><b>arg0</b>: ${arg0Name}  (${arg0})</p>` : ""}
+            ${arg1 ? `<p><b>arg1</b>: ${arg1Name}  (${arg1})</p>` : ""}
+            <p><b>result</b>: ${displayValue}</p>
+            <form method="dialog">
+              <button>close</button>
+            </form>
+          </dialog>`,
+        ].join("");
+
         this.style.display = "inline";
       } else {
         // Handle error or no response
@@ -85,7 +111,7 @@ if (typeof window !== "undefined") {
       const method = lookup(call.method);
       const args = call.args.map(lookup);
       const decimals = lookup(call.decimals);
-      return { type, to, method, args, decimals };
+      return { type, to, method, args, decimals, call };
     }
   }
 
@@ -108,7 +134,7 @@ function parseUrpcCallString(call) {
     .filter((arg) => arg !== "");
   const method = `${methodName}(${args.map((_) => "address")})`;
   const decimals = call.split(")")[1].split(".")[1];
-  return { to, method, args, decimals };
+  return { to, method, args, decimals, call };
 }
 
 // Make an RPC call
