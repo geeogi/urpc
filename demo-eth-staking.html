@@ -182,10 +182,22 @@
         </div>
         <div>
           <h2>EigenLayer</h2>
-          <p>stETH staked: <u-c>$stETH.$balanceOf($elStETH).18</u-c></p>
-          <p>cbETH staked: <u-c>$cbETH.$balanceOf($elCbETH).18</u-c></p>
-          <p>rETH staked: <u-c>$rETH.$balanceOf($elRETH).18</u-c></p>
-          <p>EigenPods deployed: <u-c>$elPodManager.$numPods().0</u-c></p>
+          <p>
+            stETH staked:
+            <u-c key="elStETHBalance">$stETH.$balanceOf($elStETH).18</u-c>
+          </p>
+          <p>
+            cbETH staked:
+            <u-c key="elCbETHBalance">$cbETH.$balanceOf($elCbETH).18</u-c>
+          </p>
+          <p>
+            rETH staked:
+            <u-c key="elRETHBalance">$rETH.$balanceOf($elRETH).18</u-c>
+          </p>
+          <p>
+            EigenPods deployed:
+            <u-c key="elNumPods">$elPodManager.$numPods().0</u-c>
+          </p>
         </div>
         <div>
           <h2>Lending</h2>

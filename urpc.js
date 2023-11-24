@@ -228,29 +228,43 @@ async function renderToString(html) {
     html
       .split(`<${CALL_TAG}`)
       .filter((item) => item.includes(`</${CALL_TAG}`))
-      .map((item) => item.split(">")[1])
-      .map((item) => item.split(`</${CALL_TAG}`)[0])
       .map(async (item) => {
         const type = item.split('type="')[1]?.split('"')[0] || "eth_call";
-        const call = parseUrpcCallString(item);
+        const key = item.split('key="')[1]?.split('"')[0];
+        const callString = item.split(">")[1].split(`</${CALL_TAG}`)[0];
+        const call = parseUrpcCallString(callString);
         const to = lookup(call.to);
         const method = lookup(call.method);
         const args = call.args.map(lookup);
         const decimals = lookup(call.decimals);
-        const response = await callRPC(url, type, to, method, args);
-        const { value } = response;
-        return parseReturn(value, decimals);
+        const result = await callRPC(url, type, to, method, args);
+        const { value } = result;
+        const displayValue = parseReturn(value, decimals);
+
+        return {
+          key,
+          callString,
+          to,
+          method,
+          args,
+          decimals,
+          displayValue,
+          result,
+        };
       })
   );
 
   let template = html.slice();
+  const json = { values: {} };
 
   // insert call results
   calls.forEach((result) => {
     template =
       template.split(`<${CALL_TAG}`)[0] +
-      result +
+      result.displayValue +
       template.split(`</${CALL_TAG}>`).slice(1).join(`</${CALL_TAG}>`);
+
+    json.values[result.key || result.callString] = result;
   });
 
   // remove url
@@ -268,7 +282,7 @@ async function renderToString(html) {
     .filter((line) => line.trim() !== "")
     .join("\n");
 
-  return template;
+  return { template, json };
 }
 
 if (typeof module !== "undefined") {

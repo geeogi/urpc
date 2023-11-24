@@ -12,5 +12,5 @@ fs.readFile(filePath, "utf8", (err, data) => {
   }
 
   // Print the HTML content as a string
-  renderToString(data).then(console.log);
+  renderToString(data).then(({ template }) => console.log(template));
 });
