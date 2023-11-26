@@ -202,7 +202,7 @@ function getResultTemplate(call, result) {
 }
 
 // SSR: render urpc HTML in server environments
-async function renderToString(html) {
+export async function renderToString(html) {
   const url = html
     .split(`<${URL_TAG}`)[1]
     .split(">")[1]
@@ -275,8 +275,4 @@ async function renderToString(html) {
     .join("\n");
 
   return { template, json };
-}
-
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = { renderToString };
 }

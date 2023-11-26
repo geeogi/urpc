@@ -1,16 +1,18 @@
-const fs = require("fs");
-const { renderToString } = require("./urpc");
+import fs from "fs/promises";
+import { renderToString } from "./urpc.js";
 
 // Specify the path to your HTML file
 const filePath = "demo-simple.html";
 
-// Read the HTML file as a string
-fs.readFile(filePath, "utf8", (err, data) => {
-  if (err) {
+// Async function to read the HTML file and process it
+async function run() {
+  try {
+    const data = await fs.readFile(filePath, "utf8");
+    const { template } = await renderToString(data);
+    console.log(template);
+  } catch (err) {
     console.error(`Error reading the file: ${err}`);
-    return;
   }
+}
 
-  // Print the HTML content as a string
-  renderToString(data).then(({ template }) => console.log(template));
-});
+run();
