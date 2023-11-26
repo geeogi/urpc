@@ -179,7 +179,7 @@ function getResultTemplate(call, result) {
   const arg1Name = call.args?.[1]?.replace("$", "");
   const toName = call.to?.replace("$", "");
   const methodName = call.method?.replace("$", "");
-  const id = `dialog-${Date.now()}`;
+  const id = `dialog-${Date.now()}-${Math.random()}`;
   const onClick = `this.getRootNode().getElementById('${id}').showModal()`;
   const template = [
     `<span>${displayValue}</span>`,
