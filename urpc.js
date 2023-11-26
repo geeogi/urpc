@@ -60,58 +60,22 @@ if (typeof window !== "undefined") {
 
     // Executes the RPC call
     async connectedCallback() {
-      const { type, to, method, args, decimals, call } = this.loadAttributes();
       const url = document.querySelector(URL_TAG)?.textContent?.trim();
-      const response = await callRPC(url, type, to, method, args);
+      const directory = document.querySelector(DIRECTORY_TAG);
+      const callString = this.textContent.trim();
+      const lookup = (v) => directory.lookup(v);
+      const call = parseUrpcCallString(callString, lookup);
+      const result = await callRPC(url, call);
 
-      if (response) {
+      if (result) {
         // Handle the successful RPC response
-        const { value } = response;
-        const displayValue = parseReturn(value, decimals);
-        const key = Date.now();
-        const arg0 = response.args?.[0];
-        const arg1 = response.args?.[1];
-        const arg0Name = call.args?.[0]?.replace("$", "");
-        const arg1Name = call.args?.[1]?.replace("$", "");
-        const toName = call.to?.replace("$", "");
-        const methodName = call.method?.replace("$", "");
-        const onClick = `this.getRootNode().getElementById('dialog-${key}').showModal()`;
-
-        this.shadowRoot.innerHTML = [
-          `<span>${displayValue}</span>`,
-          "&nbsp;",
-          "&nbsp;",
-          `<button onclick="${onClick}">ⓘ</button>`,
-          `<dialog id="dialog-${key}">
-            <p><b>contract</b>: ${toName} (${response.to})</p>
-            <p><b>method</b>: ${methodName} (${response.method})</p>
-            ${arg0 ? `<p><b>arg0</b>: ${arg0Name}  (${arg0})</p>` : ""}
-            ${arg1 ? `<p><b>arg1</b>: ${arg1Name}  (${arg1})</p>` : ""}
-            <p><b>result</b>: ${displayValue}</p>
-            <form method="dialog">
-              <button>close</button>
-            </form>
-          </dialog>`,
-        ].join("");
-
+        const { template } = getResultTemplate(call, result);
+        this.shadowRoot.innerHTML = template;
         this.style.display = "inline";
       } else {
         // Handle error or no response
         this.shadowRoot.innerHTML = "Error in RPC call";
       }
-    }
-
-    // Extract the attributes needed for the RPC call
-    loadAttributes() {
-      const directory = document.getElementsByTagName(DIRECTORY_TAG)?.[0];
-      const lookup = (v) => directory.lookup(v);
-      const type = this.getAttribute("type") || "eth_call";
-      const call = parseUrpcCallString(this.textContent.trim());
-      const to = lookup(call.to);
-      const method = lookup(call.method);
-      const args = call.args.map(lookup);
-      const decimals = lookup(call.decimals);
-      return { type, to, method, args, decimals, call };
     }
   }
 
@@ -124,27 +88,36 @@ if (typeof window !== "undefined") {
  *
  * e.g. $stETH.balanceOf($unstETH).18
  */
-function parseUrpcCallString(call) {
-  const to = call.split(".")[0];
-  const methodName = call.split(".")[1].split("(")[0];
-  const args = call
+function parseUrpcCallString(callString, lookup) {
+  const to = callString.split(".")[0];
+  const methodName = callString.split(".")[1].split("(")[0];
+  const args = callString
     .split("(")[1]
     .split(")")[0]
     .split(",")
     .filter((arg) => arg !== "");
   const method = `${methodName}(${args.map((_) => "address")})`;
-  const decimals = call.split(")")[1].split(".")[1];
-  return { to, method, args, decimals, call };
+  const decimals = callString.split(")")[1].split(".")[1];
+
+  const values = {
+    to: lookup(to),
+    method: lookup(method),
+    args: args.map(lookup),
+    decimals: lookup(decimals),
+  };
+
+  return { to, method, args, decimals, values };
 }
 
 // Make an RPC call
-async function callRPC(url, type, to, method, args = []) {
-  const data = encodeMethodCall(method, args);
+async function callRPC(url, call) {
+  const { method, args, to } = call.values;
+  const data = encodeMethodCall(method, args || []);
 
   const payload = {
     jsonrpc: "2.0",
     id: 1,
-    method: type,
+    method: "eth_call",
     params: [{ to, data }, "latest"],
   };
 
@@ -161,9 +134,7 @@ async function callRPC(url, type, to, method, args = []) {
     throw new Error(json.error.message);
   }
 
-  const value = json.result;
-
-  return { type, to, method, args, value };
+  return json.result;
 }
 
 // Encode method call data
@@ -183,7 +154,7 @@ function padArgument(arg) {
 }
 
 // Pretty parse return value
-function parseReturn(value, decimals) {
+function getDisplayValue(value, decimals) {
   if (decimals !== undefined) {
     const num = parseInt(value, 16) / 10 ** decimals;
     return num > 9999
@@ -197,6 +168,37 @@ function parseReturn(value, decimals) {
   } else {
     return value;
   }
+}
+
+// Generate template for RPC result
+function getResultTemplate(call, result) {
+  const displayValue = getDisplayValue(result, call.values.decimals);
+  const arg0 = call.values.args?.[0];
+  const arg1 = call.values.args?.[1];
+  const arg0Name = call.args?.[0]?.replace("$", "");
+  const arg1Name = call.args?.[1]?.replace("$", "");
+  const toName = call.to?.replace("$", "");
+  const methodName = call.method?.replace("$", "");
+  const id = `dialog-${Date.now()}`;
+  const onClick = `this.getRootNode().getElementById('${id}').showModal()`;
+  const template = [
+    `<span>${displayValue}</span>`,
+    "&nbsp;",
+    "&nbsp;",
+    `<button onclick="${onClick}">ⓘ</button>`,
+    `<dialog id="${id}">
+      <p><b>contract</b>: ${toName} (${call.values.to})</p>
+      <p><b>method</b>: ${methodName} (${call.values.method})</p>
+      ${arg0 ? `<p><b>arg0</b>: ${arg0Name}  (${arg0})</p>` : ""}
+      ${arg1 ? `<p><b>arg1</b>: ${arg1Name}  (${arg1})</p>` : ""}
+      <p><b>result</b>: ${displayValue}</p>
+      <form method="dialog">
+        <button>close</button>
+      </form>
+    </dialog>`,
+  ].join("");
+
+  return { template, displayValue };
 }
 
 // SSR: render urpc HTML in server environments
@@ -228,29 +230,15 @@ async function renderToString(html) {
     html
       .split(`<${CALL_TAG}`)
       .filter((item) => item.includes(`</${CALL_TAG}`))
+      .map((item) => item.split(`</${CALL_TAG}`)[0])
       .map(async (item) => {
-        const type = item.split('type="')[1]?.split('"')[0] || "eth_call";
         const key = item.split('key="')[1]?.split('"')[0];
-        const callString = item.split(">")[1].split(`</${CALL_TAG}`)[0];
-        const call = parseUrpcCallString(callString);
-        const to = lookup(call.to);
-        const method = lookup(call.method);
-        const args = call.args.map(lookup);
-        const decimals = lookup(call.decimals);
-        const result = await callRPC(url, type, to, method, args);
-        const { value } = result;
-        const displayValue = parseReturn(value, decimals);
+        const callString = item.split(">")[1].trim();
+        const call = parseUrpcCallString(callString, lookup);
+        const result = await callRPC(url, call);
+        const { template, displayValue } = getResultTemplate(call, result);
 
-        return {
-          key,
-          callString,
-          to,
-          method,
-          args,
-          decimals,
-          displayValue,
-          result,
-        };
+        return { key, call, callString, displayValue, result, template };
       })
   );
 
@@ -258,13 +246,17 @@ async function renderToString(html) {
   const json = { values: {} };
 
   // insert call results
-  calls.forEach((result) => {
-    template =
-      template.split(`<${CALL_TAG}`)[0] +
-      result.displayValue +
-      template.split(`</${CALL_TAG}>`).slice(1).join(`</${CALL_TAG}>`);
+  calls.forEach((item) => {
+    template = template.replace(item.callString, item.template);
 
-    json.values[result.key || result.callString] = result;
+    const key = item.key || item.callString;
+
+    json.values[key] = {
+      key,
+      call: item.call,
+      displayValue: item.displayValue,
+      result: item.result,
+    };
   });
 
   // remove url
@@ -285,6 +277,4 @@ async function renderToString(html) {
   return { template, json };
 }
 
-if (typeof module !== "undefined") {
-  module.exports = { renderToString };
-}
+module.exports = renderToString;
