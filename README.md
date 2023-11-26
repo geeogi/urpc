@@ -2,6 +2,8 @@
 
 A thin layer between HTML and Ethereum style JSON-RPC using web components. [Learn more](https://geeogi.com/articles/urpc).
 
+See [live demo](https://geeogi.github.io/urpc/demo-simple.html).
+
 ```.html
 <!DOCTYPE html>
 <html lang="en">
