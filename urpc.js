@@ -277,4 +277,6 @@ async function renderToString(html) {
   return { template, json };
 }
 
-module.exports = renderToString;
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { renderToString };
+}
